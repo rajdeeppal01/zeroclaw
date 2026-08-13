@@ -1,0 +1,17 @@
+{
+  "name": "threat-intel-hub-api",
+  "version": "1.0.0",
+  "description": "Pragmatic Threat Intelligence Hub API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

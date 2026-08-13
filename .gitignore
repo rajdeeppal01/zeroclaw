@@ -1,0 +1,12 @@
+# Node
+node_modules/
+dist/
+.env
+
+# PKI (CRITICAL: Never commit private keys)
+pki/**/*.key
+pki/**/*.csr
+ca_db/
+
+# MacOS
+.DS_Store

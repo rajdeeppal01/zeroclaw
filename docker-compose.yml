@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: threat-hub-nginx
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./pki/certs:/etc/nginx/certs:ro
+      - ./pki/crl:/etc/nginx/crl:ro
+      - ./nginx/scripts:/etc/nginx/scripts
+    networks:
+      - hub_internal
+    depends_on:
+      - api
+
+  api:
+    build: ./api
+    container_name: threat-hub-api
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - hub_internal
+
+networks:
+  hub_internal:
+    driver: bridge
+    internal: false # Needs to be false so API can reach out, but we don't map ports to the host for the API.
