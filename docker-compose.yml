@@ -22,6 +22,16 @@ services:
     depends_on:
       - api
 
+  crl-updater:
+    image: alpine
+    container_name: threat-hub-crl-updater
+    volumes:
+      - ./pki:/pki
+    # Run the renewal script every 7 days (604800 seconds) to ensure the 30-day Intermediate CRL never expires
+    command: /bin/sh -c "apk add --no-cache openssl dos2unix && while true; do dos2unix /pki/renew_crl.sh && sh /pki/renew_crl.sh; sleep 604800; done"
+    networks:
+      - hub_internal
+
   api:
     build: ./api
     container_name: threat-hub-api
