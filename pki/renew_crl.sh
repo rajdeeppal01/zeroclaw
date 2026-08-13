@@ -13,7 +13,16 @@ cat crl/root.crl crl/intermediate.crl > crl/ca-chain.crl
 echo "[$(date)] CRL successfully renewed."
 
 # Safety Net: Extract the nextUpdate date and log it.
-# A proper monitoring tool (like Datadog/Prometheus) would scrape this log line
-# to alert if the date doesn't advance, or we can add a basic check here.
-EXPIRY=$(openssl crl -in crl/intermediate.crl -nextupdate -noout)
-echo "[$(date)] INFO: New CRL $EXPIRY"
+EXPIRY_DATE=$(openssl crl -in crl/intermediate.crl -nextupdate -noout | cut -d= -f2)
+
+# We use GNU date (coreutils) for reliable parsing
+EXPIRY_EPOCH=$(date -d "$EXPIRY_DATE" +%s)
+CURRENT_EPOCH=$(date +%s)
+DAYS_LEFT=$(( (EXPIRY_EPOCH - CURRENT_EPOCH) / 86400 ))
+
+echo "[$(date)] INFO: New CRL expires in $DAYS_LEFT days ($EXPIRY_DATE)"
+
+if [ "$DAYS_LEFT" -lt 14 ]; then
+  echo "[FATAL] Intermediate CRL expires in less than 14 days! Exiting non-zero to trigger failure." >&2
+  exit 1
+fi
