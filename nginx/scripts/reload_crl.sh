@@ -5,7 +5,7 @@
 # Simple cron-like loop for the Docker container
 while true; do
     # Check if the CRL file has been updated in the last 60 seconds
-    if find /etc/nginx/crl/intermediate.crl -mmin -1 | grep -q '.*'; then
+    if find /etc/nginx/crl/ca-chain.crl -mmin -1 | grep -q '.*'; then
         echo "CRL updated. Reloading Nginx..."
         nginx -s reload
     fi

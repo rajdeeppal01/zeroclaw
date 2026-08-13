@@ -3,10 +3,12 @@ node_modules/
 dist/
 .env
 
-# PKI (CRITICAL: Never commit private keys)
-pki/**/*.key
-pki/**/*.csr
-ca_db/
-
+# PKI (CRITICAL: Never commit private keys or active databases)
+pki/certs/
+pki/crl/
+ca_db_root/
+ca_db_inter/
+pki/ca_db_root/
+pki/ca_db_inter/
 # MacOS
 .DS_Store

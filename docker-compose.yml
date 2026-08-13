@@ -8,9 +8,15 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./pki/certs:/etc/nginx/certs:ro
-      - ./pki/crl:/etc/nginx/crl:ro
-      - ./nginx/scripts:/etc/nginx/scripts
+      - ./nginx/entrypoint.sh:/entrypoint.sh:ro
+      - ./nginx/scripts:/etc/nginx/scripts:ro
+      # STRICT VOLUME MOUNTS: Only mount the necessary public/chain certs and CRL. 
+      # Never mount the intermediate-ca.key or root-ca.key into this container.
+      - ./pki/certs/server.crt:/etc/nginx/certs/server.crt:ro
+      - ./pki/certs/server.key:/etc/nginx/certs/server.key:ro
+      - ./pki/certs/ca-chain.crt:/etc/nginx/certs/ca-chain.crt:ro
+      - ./pki/crl/ca-chain.crl:/etc/nginx/crl/ca-chain.crl:ro
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
     networks:
       - hub_internal
     depends_on:
@@ -19,6 +25,10 @@ services:
   api:
     build: ./api
     container_name: threat-hub-api
+    # HEADER SPOOFING MITIGATION: 
+    # Do NOT add a `ports: - "3000:3000"` mapping here. 
+    # The API must remain isolated on the hub_internal network. If exposed to the host, 
+    # attackers can bypass Nginx and manually inject X-Client-Cert-CN headers.
     expose:
       - "3000"
     environment:
