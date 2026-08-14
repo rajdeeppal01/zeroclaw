@@ -125,7 +125,8 @@ In the event of a catastrophic failure, restore the database from an off-site du
    ```
 2. Restore the dump into the Postgres container:
    ```bash
-   cat backup_YYYYMMDD_HHMMSS.dump | docker exec -i zeroclaw-db-1 pg_restore -U postgres -d zeroclaw --clean
+   docker cp backup_YYYYMMDD_HHMMSS.dump zeroclaw-db-1:/tmp/restore.dump
+   docker exec zeroclaw-db-1 pg_restore -U postgres -d zeroclaw -F c --clean /tmp/restore.dump
    ```
 3. Restart the API container:
    ```bash
