@@ -35,11 +35,12 @@ async function requireAgent(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: Missing Client Certificate CN' });
   }
 
-  // Ensure client exists in DB
-  let client = await prisma.client.findUnique({ where: { cn } });
-  if (!client) {
-    client = await prisma.client.create({ data: { cn } });
-  }
+  // Ensure client exists in DB using upsert to avoid concurrency issues under load
+  let client = await prisma.client.upsert({
+      where: { cn },
+      update: {},
+      create: { cn }
+  });
 
   req.client = client;
   next();

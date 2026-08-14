@@ -56,7 +56,7 @@ services:
       - "3000"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://zeroclaw:zeroclaw_super_secret@postgres:5432/zeroclaw?schema=public
+      - DATABASE_URL=postgresql://zeroclaw:zeroclaw_super_secret@postgres:5432/zeroclaw?schema=public&connection_limit=50&pool_timeout=10
       - JWT_SECRET=super_secret_jwt_key_change_in_prod
       - ANOMALY_THRESHOLD=20
     networks:

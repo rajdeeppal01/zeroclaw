@@ -43,5 +43,7 @@ model Threat {
 
   client         Client    @relation(fields: [client_id], references: [id])
   analyst        Analyst?  @relation(fields: [reviewed_by_id], references: [id])
+
+  @@index([client_id, created_at])
 }
 
