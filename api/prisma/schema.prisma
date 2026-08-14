@@ -27,7 +27,8 @@ model Analyst {
   password_hash  String
   created_at     DateTime @default(now())
   
-  reviewed       Threat[]
+  reviewed       Threat[] @relation("ReviewedThreats")
+  revoked        Threat[] @relation("RevokedThreats")
   unquarantined  Client[]
 }
 
@@ -40,9 +41,12 @@ model Threat {
   created_at     DateTime  @default(now())
   reviewed_at    DateTime?
   reviewed_by_id Int?
+  revoked_at     DateTime?
+  revoked_by_id  Int?
 
   client         Client    @relation(fields: [client_id], references: [id])
-  analyst        Analyst?  @relation(fields: [reviewed_by_id], references: [id])
+  analyst        Analyst?  @relation("ReviewedThreats", fields: [reviewed_by_id], references: [id])
+  revoker        Analyst?  @relation("RevokedThreats", fields: [revoked_by_id], references: [id])
 
   @@index([client_id, created_at])
 }

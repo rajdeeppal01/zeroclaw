@@ -67,9 +67,9 @@ def consume_feed(url: str, cert_path: str, key_path: str, whitelist_path: str, o
     import time
     now = time.time()
     
-    # Auto-trigger full sync every 24 hours as a safety net against drifted state or silent removals.
+    # Auto-trigger full sync every 1 hour (3600s) as a safety net against drifted state or silent removals.
     # User can also force it via CLI.
-    if full_sync or now - state.get('last_full_sync', 0) > 86400:
+    if full_sync or now - state.get('last_full_sync', 0) > 3600:
         print("[*] Performing full resync of feed state...")
         state['cursor'] = None
         state['active_ips'] = []

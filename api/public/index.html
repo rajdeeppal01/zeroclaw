@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeroClaw | Analyst Console</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Authentication Overlay -->
+  <div id="auth-overlay" class="glass-overlay">
+    <div class="auth-card glass-panel">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <h1>ZeroClaw</h1>
+        <p>Analyst Control Plane</p>
+      </div>
+      <form id="login-form">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required autocomplete="current-password">
+        </div>
+        <div id="login-error" class="error-msg hidden">Invalid credentials.</div>
+        <button type="submit" class="btn-primary" id="login-btn">Authenticate</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- App Container -->
+  <div id="app-container" class="hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar glass-panel">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <h2>ZeroClaw</h2>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-view="queue-view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+          Triage Queue
+        </button>
+        <button class="nav-btn" data-view="feed-view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Active Feed
+        </button>
+        <button class="nav-btn" data-view="clients-view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Client Health
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <span class="status-dot online"></span>
+          <span id="current-user">analyst</span>
+        </div>
+        <button id="logout-btn" class="btn-ghost">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- Queue View -->
+      <section id="queue-view" class="view active">
+        <header>
+          <h2>Triage Queue</h2>
+          <p>Pending threat reports from the agent network.</p>
+        </header>
+        <div class="controls">
+          <button id="refresh-queue" class="btn-secondary">Refresh</button>
+        </div>
+        <div id="queue-container" class="data-container">
+          <div class="loading-shimmer">Loading...</div>
+        </div>
+      </section>
+
+      <!-- Active Feed View -->
+      <section id="feed-view" class="view hidden">
+        <header>
+          <h2>Active Feed</h2>
+          <p>Currently approved indicators actively blocking traffic.</p>
+        </header>
+        <div class="controls">
+          <button id="refresh-feed" class="btn-secondary">Refresh</button>
+        </div>
+        <div id="feed-container" class="data-container">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Client Health View -->
+      <section id="clients-view" class="view hidden">
+        <header>
+          <h2>Client Health</h2>
+          <p>Connected agents and anomaly states.</p>
+        </header>
+        <div class="controls">
+          <button id="refresh-clients" class="btn-secondary">Refresh</button>
+        </div>
+        <div id="clients-container" class="data-container">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

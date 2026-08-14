@@ -6,11 +6,14 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 
+const path = require('path');
+
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_change_in_prod';
 const ANOMALY_THRESHOLD = parseInt(process.env.ANOMALY_THRESHOLD || '20');
@@ -219,6 +222,33 @@ app.get('/api/v1/ui/queue', requireAnalyst, async (req, res) => {
   res.json(threats);
 });
 
+app.get('/api/v1/ui/feed', requireAnalyst, async (req, res) => {
+  const threats = await prisma.threat.findMany({
+    where: { status: 'approved' },
+    include: { client: { select: { cn: true } } },
+    orderBy: { reviewed_at: 'desc' },
+    take: 100 // Limit for UI performance
+  });
+  res.json(threats);
+});
+
+app.get('/api/v1/ui/clients', requireAnalyst, async (req, res) => {
+  const clients = await prisma.client.findMany({
+    orderBy: { created_at: 'desc' }
+  });
+  
+  // Attach recent submission stats
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const result = await Promise.all(clients.map(async (c) => {
+    const hourlyCount = await prisma.threat.count({
+      where: { client_id: c.id, created_at: { gte: oneHourAgo } }
+    });
+    return { ...c, hourly_submissions: hourlyCount };
+  }));
+  
+  res.json(result);
+});
+
 app.post('/api/v1/ui/queue/:id/approve', requireAnalyst, requireCsrf, async (req, res) => {
   try {
     const threatId = parseInt(req.params.id);
@@ -278,8 +308,8 @@ app.post('/api/v1/ui/queue/:id/revoke', requireAnalyst, requireCsrf, async (req,
       where: { id: threatId, status: 'approved' },
       data: {
         status: 'revoked',
-        reviewed_at: new Date(),
-        reviewed_by_id: req.analystId
+        revoked_at: new Date(),
+        revoked_by_id: req.analystId
       }
     });
 
