@@ -45,6 +45,7 @@ def main():
     consume_parser.add_argument("--url", default="https://localhost/api/v1/feed", help="The Hub's feed URL")
     consume_parser.add_argument("--out", default="blocklist.txt", help="Path to atomically write the blocklist")
     consume_parser.add_argument("--whitelist", default="whitelist.txt", help="Path to the shared whitelist CIDR file")
+    consume_parser.add_argument("--full-sync", action="store_true", help="Force a full feed resynchronization (ignores local state cursor)")
     
     args = parser.parse_args()
     
@@ -73,7 +74,7 @@ def main():
     elif args.command == "consume":
         print(f"[*] Starting feed consumption from {args.url}...")
         try:
-            consume_feed(args.url, args.cert, args.key, args.whitelist, args.out)
+            consume_feed(args.url, args.cert, args.key, args.whitelist, args.out, full_sync=args.full_sync)
         except Exception as e:
             print(f"[-] Feed consumption failed: {str(e)}", file=sys.stderr)
             sys.exit(1)

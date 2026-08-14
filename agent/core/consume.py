@@ -53,9 +53,9 @@ def extract_ip_from_stix(pattern: str) -> str:
         return match.group(1)
     return None
 
-def consume_feed(url: str, cert_path: str, key_path: str, whitelist_path: str, output_path: str = BLOCKLIST_FILE):
+def consume_feed(url: str, cert_path: str, key_path: str, whitelist_path: str, output_path: str = BLOCKLIST_FILE, full_sync: bool = False):
     """Polls the API for approved threats, applies whitelist, and writes atomically."""
-    state = {'cursor': None, 'active_ips': []}
+    state = {'cursor': None, 'active_ips': [], 'last_full_sync': 0}
     
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE, 'r') as f:
@@ -64,6 +64,17 @@ def consume_feed(url: str, cert_path: str, key_path: str, whitelist_path: str, o
             except json.JSONDecodeError:
                 print("[-] Failed to parse state file. Starting fresh.")
                 
+    import time
+    now = time.time()
+    
+    # Auto-trigger full sync every 24 hours as a safety net against drifted state or silent removals.
+    # User can also force it via CLI.
+    if full_sync or now - state.get('last_full_sync', 0) > 86400:
+        print("[*] Performing full resync of feed state...")
+        state['cursor'] = None
+        state['active_ips'] = []
+        state['last_full_sync'] = now
+
     cursor = state.get('cursor')
     active_ips = set(state.get('active_ips', []))
     
@@ -126,11 +137,19 @@ def consume_feed(url: str, cert_path: str, key_path: str, whitelist_path: str, o
         os.unlink(temp_path)
         sys.exit(1)
         
-    # Save local state
+    # Save local state atomically
     state['cursor'] = new_timestamp
     state['active_ips'] = list(active_ips)
-    with open(STATE_FILE, 'w') as f:
-        json.dump(state, f, indent=2)
+    
+    state_temp_fd, state_temp_path = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(STATE_FILE)))
+    try:
+        with os.fdopen(state_temp_fd, 'w') as f:
+            json.dump(state, f, indent=2)
+        os.replace(state_temp_path, STATE_FILE)
+    except Exception as e:
+        print(f"[-] Failed to write state file atomically: {e}")
+        os.unlink(state_temp_path)
+        sys.exit(1)
         
     print(f"[+] Successfully wrote {output_path} atomically.")
 

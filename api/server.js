@@ -271,6 +271,30 @@ app.post('/api/v1/ui/queue/:id/reject', requireAnalyst, requireCsrf, async (req,
   }
 });
 
+app.post('/api/v1/ui/queue/:id/revoke', requireAnalyst, requireCsrf, async (req, res) => {
+  try {
+    const threatId = parseInt(req.params.id);
+    const result = await prisma.threat.updateMany({
+      where: { id: threatId, status: 'approved' },
+      data: {
+        status: 'revoked',
+        reviewed_at: new Date(),
+        reviewed_by_id: req.analystId
+      }
+    });
+
+    if (result.count === 0) {
+      const current = await prisma.threat.findUnique({ where: { id: threatId } });
+      if (!current) return res.status(404).json({ error: 'Threat not found' });
+      if (current.status !== 'approved') return res.status(409).json({ error: 'Only approved threats can be revoked' });
+    }
+
+    res.json({ message: 'Revoked' });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to revoke' });
+  }
+});
+
 app.post('/api/v1/ui/clients/:id/unquarantine', requireAnalyst, requireCsrf, async (req, res) => {
   try {
     const clientId = parseInt(req.params.id);
