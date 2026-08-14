@@ -1,0 +1,12 @@
+# OpenClaw Global Whitelist
+# This file is the single source of truth for safe IPs.
+# Both the Python Agent and the Bash Execution Script read this file.
+# Any IPs listed here (exact match or within CIDR range) will NEVER be blocked.
+
+127.0.0.0/8
+10.0.0.0/8
+172.16.0.0/12
+192.168.0.0/16
+169.254.0.0/16
+224.0.0.0/4
+240.0.0.0/4

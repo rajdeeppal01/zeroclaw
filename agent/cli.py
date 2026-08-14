@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from llm.triage import extract_threat
 from core.transmit import transmit_threat
+from core.consume import consume_feed
 
 def log_failure(log_line: str, error_msg: str):
     """
@@ -38,6 +39,13 @@ def main():
     triage_parser.add_argument("--key", required=True, help="Path to the enterprise client private key")
     triage_parser.add_argument("--url", default="https://localhost/api/v1/threats", help="The Hub's ingress URL")
     
+    consume_parser = subparsers.add_parser("consume", help="Poll the feed for approved threats and update the local blocklist")
+    consume_parser.add_argument("--cert", required=True, help="Path to the enterprise client certificate")
+    consume_parser.add_argument("--key", required=True, help="Path to the enterprise client private key")
+    consume_parser.add_argument("--url", default="https://localhost/api/v1/feed", help="The Hub's feed URL")
+    consume_parser.add_argument("--out", default="blocklist.txt", help="Path to atomically write the blocklist")
+    consume_parser.add_argument("--whitelist", default="whitelist.txt", help="Path to the shared whitelist CIDR file")
+    
     args = parser.parse_args()
     
     if args.command == "triage":
@@ -60,6 +68,14 @@ def main():
             print(json.dumps(response, indent=2))
         except Exception as e:
             print(f"[-] Transmission Failed: {str(e)}", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.command == "consume":
+        print(f"[*] Starting feed consumption from {args.url}...")
+        try:
+            consume_feed(args.url, args.cert, args.key, args.whitelist, args.out)
+        except Exception as e:
+            print(f"[-] Feed consumption failed: {str(e)}", file=sys.stderr)
             sys.exit(1)
 
 if __name__ == "__main__":
