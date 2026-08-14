@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id             Int      @id @default(autoincrement())
+  cn             String   @unique
+  reputation     Float    @default(1.0)
+  is_quarantined      Boolean   @default(false)
+  quarantine_reset_at DateTime?
+  unquarantined_by_id Int?
+  created_at          DateTime  @default(now())
+  
+  threats             Threat[]
+  unquarantined_by    Analyst?  @relation(fields: [unquarantined_by_id], references: [id])
+}
+
+model Analyst {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  password_hash  String
+  created_at     DateTime @default(now())
+  
+  reviewed       Threat[]
+  unquarantined  Client[]
+}
+
+model Threat {
+  id             Int       @id @default(autoincrement())
+  stix_id        String    @unique
+  client_id      Int
+  stix_data      Json
+  status         String    @default("pending_review") // "pending_review", "approved", "rejected", "quarantined"
+  created_at     DateTime  @default(now())
+  reviewed_at    DateTime?
+  reviewed_by_id Int?
+
+  client         Client    @relation(fields: [client_id], references: [id])
+  analyst        Analyst?  @relation(fields: [reviewed_by_id], references: [id])
+}
+

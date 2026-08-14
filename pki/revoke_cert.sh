@@ -21,8 +21,8 @@ echo "=== Regenerating Intermediate CRL ==="
 openssl ca -gencrl -config ca_db_inter/ca.conf -out crl/intermediate.crl
 
 echo "=== Rebuilding Combined CRL ==="
-cat crl/root.crl crl/intermediate.crl > crl/ca-chain.crl.tmp
-openssl crl -in crl/ca-chain.crl.tmp -noout
-mv crl/ca-chain.crl.tmp crl/ca-chain.crl
+cat crl/root.crl crl/intermediate.crl > crl/ca-chain.crl.tmp.$$
+openssl crl -in crl/ca-chain.crl.tmp.$$ -noout
+mv crl/ca-chain.crl.tmp.$$ crl/ca-chain.crl
 
 echo "Revocation complete. The Nginx watcher should automatically reload within 60 seconds."

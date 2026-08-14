@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-
+import uuid
 class MockLLMHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
@@ -33,7 +33,7 @@ class MockLLMHandler(BaseHTTPRequestHandler):
             response_content = json.dumps({
                 "type": "indicator",
                 "spec_version": "2.1",
-                "id": "indicator--11111111-2222-4333-8444-555555555555",
+                "id": f"indicator--{uuid.uuid4()}",
                 "created": "2026-04-06T20:03:48Z",
                 "modified": "2026-04-06T20:03:48Z",
                 "name": "Corrected Threat",
@@ -50,7 +50,7 @@ class MockLLMHandler(BaseHTTPRequestHandler):
             response_content = json.dumps({
                 "type": "indicator",
                 "spec_version": "2.1",
-                "id": "indicator--11111111-2222-4333-8444-555555555555",
+                "id": f"indicator--{uuid.uuid4()}",
                 "created": "2026-04-06T20:03:48Z",
                 "modified": "2026-04-06T20:03:48Z",
                 "name": "Detected Threat",

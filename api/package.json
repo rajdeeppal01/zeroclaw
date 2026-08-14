@@ -8,10 +8,19 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "axios": "^1.19.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
     "zod": "^3.23.8"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@prisma/client": "^5.22.0",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.22.0"
   }
 }

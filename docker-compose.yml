@@ -6,6 +6,8 @@ services:
     container_name: threat-hub-nginx
     ports:
       - "443:443"
+      - "8443:8443"
+
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/entrypoint.sh:/entrypoint.sh:ro
@@ -54,6 +56,23 @@ services:
       - "3000"
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=postgresql://zeroclaw:zeroclaw_super_secret@postgres:5432/zeroclaw?schema=public
+      - JWT_SECRET=super_secret_jwt_key_change_in_prod
+      - ANOMALY_THRESHOLD=20
+    networks:
+      - hub_internal
+  postgres:
+    image: postgres:15-alpine
+    container_name: threat-hub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zeroclaw}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zeroclaw}
+      POSTGRES_DB: ${POSTGRES_DB:-zeroclaw}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - hub_internal
 
@@ -61,3 +80,6 @@ networks:
   hub_internal:
     driver: bridge
     internal: false # Needs to be false so API can reach out, but we don't map ports to the host for the API.
+
+volumes:
+  postgres_data:

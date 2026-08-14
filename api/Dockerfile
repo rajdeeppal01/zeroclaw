@@ -2,13 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache openssl
 COPY package*.json ./
 RUN npm install
 
-COPY . .
+COPY prisma ./prisma
+RUN npx prisma generate
 
-# Non-root user for security
-USER node
+COPY . .
 
 EXPOSE 3000
 
