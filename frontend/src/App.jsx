@@ -8,6 +8,7 @@ import './index.css';
 import Login from './components/Login';
 import TriageQueue from './components/TriageQueue';
 import ActiveFeed from './components/ActiveFeed';
+import ClientHealth from './components/ClientHealth';
 
 function Sidebar({ username, onLogout }) {
   const location = useLocation();
@@ -118,7 +119,7 @@ function App() {
           <Route path="/" element={<Navigate to="/queue" replace />} />
           <Route path="/queue" element={<TriageQueue />} />
           <Route path="/feed" element={<ActiveFeed />} />
-          <Route path="/clients" element={<div className="page-header"><h2>Client Health</h2><p>Coming Soon</p></div>} />
+          <Route path="/clients" element={<ClientHealth />} />
         </Routes>
       </MainLayout>
     </Router>
