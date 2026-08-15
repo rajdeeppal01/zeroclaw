@@ -17,6 +17,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/entrypoint.sh:/entrypoint.sh:ro
       - ./nginx/scripts:/etc/nginx/scripts:ro
+      - ./nginx/html:/etc/nginx/html:ro
       # STRICT VOLUME MOUNTS: Only mount the necessary public/chain certs and CRL. 
       # Never mount the intermediate-ca.key or root-ca.key into this container.
       - ./pki/certs/server.crt:/etc/nginx/certs/server.crt:ro
