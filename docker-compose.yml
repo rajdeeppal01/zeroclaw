@@ -33,7 +33,6 @@ services:
     image: alpine:3.19
     container_name: threat-hub-crl-updater
     restart: unless-stopped
-    read_only: true
     cap_drop:
       - ALL
     security_opt:

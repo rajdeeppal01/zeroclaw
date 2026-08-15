@@ -7,13 +7,22 @@ const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
+  credentials: true
+}));
+// Removing express.static serving of public since we are migrating to Vercel
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_change_in_prod';
 const ANOMALY_THRESHOLD = parseInt(process.env.ANOMALY_THRESHOLD || '20');
