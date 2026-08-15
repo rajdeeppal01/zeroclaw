@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('.vercel.app')) {
+    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('.vercel.app') || origin.includes('duckdns.org')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -353,7 +353,44 @@ app.post('/api/v1/ui/clients/:id/unquarantine', requireAnalyst, requireCsrf, asy
   }
 });
 
+// ==========================================
+// 3. WAITLIST / LEAD CAPTURE
+// ==========================================
 
+app.post('/api/v1/waitlist', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+
+    // Upsert so if they submit again, we just return success without crashing
+    const entry = await prisma.waitlist.upsert({
+      where: { email },
+      update: {},
+      create: { email }
+    });
+
+    res.status(201).json({ message: 'Added to waitlist', id: entry.id });
+  } catch (error) {
+    console.error('Waitlist error:', error);
+    res.status(500).json({ error: 'Failed to add to waitlist' });
+  }
+});
+
+app.get('/api/v1/ui/waitlist', requireAnalyst, async (req, res) => {
+  try {
+    const waitlist = await prisma.waitlist.findMany({
+      orderBy: { created_at: 'desc' }
+    });
+    res.json(waitlist);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch waitlist' });
+  }
+});
+
+
+require('./onboarding_routes')(app, prisma, requireAnalyst, requireCsrf);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {

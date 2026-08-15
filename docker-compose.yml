@@ -76,6 +76,24 @@ services:
         max-file: "3"
     networks:
       - hub_internal
+  signer:
+    build: ./api/signer
+    container_name: threat-hub-signer
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://zeroclaw:zeroclaw_super_secret@postgres:5432/zeroclaw
+      - PKI_DIR=/pki
+    volumes:
+      - ./pki:/pki:rw
+    networks:
+      - hub_internal
+      - internal_only
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   postgres:
     image: postgres:15-alpine
     container_name: threat-hub-postgres
@@ -99,7 +117,10 @@ services:
 networks:
   hub_internal:
     driver: bridge
-    internal: false # Needs to be false so API can reach out, but we don't map ports to the host for the API.
+    internal: false # Needs to be false so API can reach out
+  internal_only:
+    driver: bridge
+    internal: true # No external egress allowed
 
 volumes:
   postgres_data:

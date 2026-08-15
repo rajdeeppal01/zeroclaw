@@ -18,7 +18,7 @@ model Client {
   created_at          DateTime  @default(now())
   
   threats             Threat[]
-  unquarantined_by    Analyst?  @relation(fields: [unquarantined_by_id], references: [id])
+  unquarantined_by    Analyst?  @relation("AnalystUnquarantines", fields: [unquarantined_by_id], references: [id])
 }
 
 model Analyst {
@@ -27,9 +27,10 @@ model Analyst {
   password_hash  String
   created_at     DateTime @default(now())
   
-  reviewed       Threat[] @relation("ReviewedThreats")
-  revoked        Threat[] @relation("RevokedThreats")
-  unquarantined  Client[]
+  threats_reviewed Threat[] @relation("ReviewedThreats")
+  threats_revoked  Threat[] @relation("RevokedThreats")
+  clients_unquarantined Client[] @relation("AnalystUnquarantines")
+  onboarding_approvals OnboardingRequest[] @relation("AnalystApprovals")
 }
 
 model Threat {
@@ -51,3 +52,25 @@ model Threat {
   @@index([client_id, created_at])
 }
 
+model OnboardingRequest {
+  id               Int      @id @default(autoincrement())
+  tracking_token   String   @unique
+  username         String
+  status           String   @default("pending") // pending, approved, signed, rejected, downloaded
+  csr_pem          String
+  cert_pem         String?
+  private_key_pem  String?
+  
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  
+  approved_by_id   Int?
+  approved_by      Analyst? @relation("AnalystApprovals", fields: [approved_by_id], references: [id])
+}
+
+model Waitlist {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  created_at DateTime @default(now())
+  status     String   @default("pending") // "pending", "contacted", "onboarded"
+}

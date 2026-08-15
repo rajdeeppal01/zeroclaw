@@ -1,0 +1,33 @@
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+dir             = /pki/ca_db_inter
+database        = $dir/index.txt
+serial          = $dir/serial
+new_certs_dir   = $dir/newcerts
+crlnumber       = $dir/crlnumber
+default_md      = sha256
+default_crl_days= 30
+default_days    = 365
+certificate     = /pki/certs/intermediate-ca.crt
+private_key     = /pki/certs/intermediate-ca.key
+policy          = policy_anything
+
+[ policy_anything ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ client_cert ]
+basicConstraints = CA:FALSE
+nsCertType = client, email
+nsComment = "ZeroClaw Client Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth
