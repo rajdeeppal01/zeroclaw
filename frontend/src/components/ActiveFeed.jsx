@@ -22,8 +22,6 @@ function ActiveFeed() {
 
   useEffect(() => {
     fetchFeed();
-    const interval = setInterval(fetchFeed, 30000); // Auto refresh every 30s
-    return () => clearInterval(interval);
   }, []);
 
   const handleRevoke = async (id) => {

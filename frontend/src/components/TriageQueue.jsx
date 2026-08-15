@@ -26,8 +26,6 @@ function TriageQueue() {
 
   useEffect(() => {
     fetchQueue();
-    const interval = setInterval(fetchQueue, 15000); // Auto refresh every 15s
-    return () => clearInterval(interval);
   }, []);
 
   const handleAction = async (id, action) => {
