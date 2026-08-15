@@ -13,8 +13,12 @@ function ClientHealth() {
       setClients(response.data);
       setError(null);
     } catch (err) {
-      console.error(err);
-      setError('Failed to load client health data.');
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.removeItem('username');
+        window.location.reload();
+      } else {
+        setError('Failed to load client health data.');
+      }
     } finally {
       setLoading(false);
     }

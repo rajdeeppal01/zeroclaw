@@ -15,6 +15,7 @@ function TriageQueue() {
       setError('');
     } catch (err) {
       if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.removeItem('username');
         window.location.reload(); // Force re-login
       } else {
         setError('Failed to load triage queue.');

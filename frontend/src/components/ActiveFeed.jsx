@@ -14,7 +14,12 @@ function ActiveFeed() {
       setThreats(response.data);
       setError('');
     } catch (err) {
-      setError('Failed to load active feed.');
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.removeItem('username');
+        window.location.reload();
+      } else {
+        setError('Failed to load active feed.');
+      }
     } finally {
       setLoading(false);
     }
